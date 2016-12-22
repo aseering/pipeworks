@@ -6,5 +6,6 @@ Pipe()\
     .go()
 
 Pipe()\
-    .get("string://hostname")\
-    .put("exec-ssh://")
+    .get("string://import sys; print sys.version")\
+    .put("exec-ssh://example.com/usr/bin/python?insecure_accept_key")\
+    .go()

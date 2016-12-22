@@ -45,7 +45,7 @@ class DataSource(object):
         return Metadata()
 
 
-class DataTransforms(object):
+class DataPipe(object):
     """
     Moves data from one stage in the pipeworks to the next
     """
@@ -54,7 +54,7 @@ class DataTransforms(object):
     class _AutoRegister(type):
         def __init__(cls, name, bases, dct):
             type.__init__(cls, name, bases, dct)
-            Registrar.registerTransform(cls)
+            Registrar.registerPipe(cls)
     __metaclass__ = _AutoRegister
 
     @classmethod
@@ -67,14 +67,14 @@ class DataTransforms(object):
 
     def setSource(self, source):
         """
-        :param source: DataSource (or DataTransform) to read data from
+        :param source: DataSource (or DataPipe) to read data from
         """
         self._source = source
 
     @property
     def stream(self):
         """
-        :return: Stream of blocks of data as processed by this transform
+        :return: Stream of blocks of data as processed by this pipe
         :rtype: iterator[str]
         """
         assert self._source, "Must specify a source first"
@@ -111,7 +111,7 @@ class DataSink(object):
 
     def setSource(self, source):
         """
-        :param source: DataSource (or DataTransform) to read data from
+        :param source: DataSource (or DataPipe) to read data from
         """
         self._source = source
 

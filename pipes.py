@@ -17,7 +17,7 @@ class Pipe(object):
 
         def __init__(self):
             self._src = None
-            self._transforms = []
+            self._pipes = []
             self._snk = None
 
         def setSource(self, src):
@@ -26,11 +26,11 @@ class Pipe(object):
             """
             self._src = src
 
-        def addTransform(self, transform):
+        def addPipe(self, pipe):
             """
-            :param DataTransform transform: Transform to append to the current series of transforms
+            :param DataPipe pipe: Pipe to append to the current series of pipes
             """
-            self._transforms.append(transform)
+            self._pipes.append(pipe)
 
         def setSink(self, snk):
             """
@@ -38,12 +38,18 @@ class Pipe(object):
             """
             self._snk = snk
 
+        def hasSink(self):
+            """
+            :return: True iff 'setSink()' has already been called
+            """
+            return self._snk is not None
+
         def run(self):
             """
             Consume all data in the pipe
             """
-            for src, snk in zip([self._src] + self._transforms,
-                                self._transforms + [self._snk]):
+            for src, snk in zip([self._src] + self._pipes,
+                                self._pipes + [self._snk]):
                 snk.setSource(src)
 
             self._snk.run()
@@ -74,12 +80,20 @@ class Pipe(object):
         uri_scheme = self._uri_scheme(uri)
         try:
             Snk = Registrar.getSink(uri_scheme)
+            self._current_pipe.setSink(Snk(uri))
         except KeyError:
-            raise UnknownURI(uri)
-        self._current_pipe.setSink(Snk(uri))
+            try:
+                Pip = Registrar.getPipe(uri_scheme)
+                self._current_pipe.addPipe(Pip(uri))
+            except KeyError:
+                raise UnknownURI(uri)
         return self
 
     def go(self):
+        if not self._current_pipe.hasSink():
+            # Output to our own stdout by default
+            self.put("stdout")
+
         if self._targetHost == None:
             return self._local_go()
 

@@ -5,7 +5,7 @@ class Registrar(object):
     """
 
     _SOURCE_HANDLERS = {}
-    _TRANSFORM_HANDLERS = {}
+    _PIPE_HANDLERS = {}
     _SINK_HANDLERS = {}
 
     @classmethod
@@ -19,9 +19,9 @@ class Registrar(object):
             cls._SINK_HANDLERS[proto] = snk
 
     @classmethod
-    def registerTransform(cls, pipe):
+    def registerPipe(cls, pipe):
         for proto in pipe.supportedProtocols():
-            cls._TRANSFORM_HANDLERS[proto] = pipe
+            cls._PIPE_HANDLERS[proto] = pipe
 
 
     @classmethod
@@ -33,6 +33,6 @@ class Registrar(object):
         return cls._SINK_HANDLERS[snkProto]
 
     @classmethod
-    def getTransform(cls, transformProto):
-        return cls._TRANSFORM_HANDLERS[transformProto]
+    def getPipe(cls, pipeProto):
+        return cls._PIPE_HANDLERS[pipeProto]
 
